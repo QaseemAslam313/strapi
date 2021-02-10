@@ -48,12 +48,14 @@ module.exports = async ({ models, target }, ctx) => {
         };
       }
 
+      const isPrivate = !_.get(definition, 'options.populateCreatorFields', false);
+
       definition.attributes[CREATED_BY_ATTRIBUTE] = {
         model: 'user',
         plugin: 'admin',
         configurable: false,
         writable: false,
-        private: definition.privateAttributes.includes(CREATED_BY_ATTRIBUTE),
+        private: isPrivate,
       };
 
       definition.attributes[UPDATED_BY_ATTRIBUTE] = {
@@ -61,7 +63,7 @@ module.exports = async ({ models, target }, ctx) => {
         plugin: 'admin',
         configurable: false,
         writable: false,
-        private: definition.privateAttributes.includes(UPDATED_BY_ATTRIBUTE),
+        private: isPrivate,
       };
     }
 
@@ -287,6 +289,7 @@ module.exports = async ({ models, target }, ctx) => {
     target[model]._attributes = definition.attributes;
     target[model].updateRelations = relations.update;
     target[model].deleteRelations = relations.deleteRelations;
+    target[model].privateAttributes = contentTypesUtils.getPrivateAttributes(target[model]);
   }
 
   // Instanciate every models

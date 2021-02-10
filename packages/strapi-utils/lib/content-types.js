@@ -84,14 +84,10 @@ const isCollectionType = ({ kind = COLLECTION_TYPE }) => kind === COLLECTION_TYP
 const isKind = kind => model => model.kind === kind;
 
 const getPrivateAttributes = (model = {}) => {
-  const hasCreatorFields = !model.uid.startsWith('strapi::') && model.modelType !== 'component';
-  const creatorFieldsArePrivate = !_.get(model, 'options.populateCreatorFields', false);
-
   return _.union(
     strapi.config.get('api.responses.privateAttributes', []),
     _.get(model, 'options.privateAttributes', []),
-    _.keys(_.pickBy(model.attributes, attr => !!attr.private)),
-    hasCreatorFields && creatorFieldsArePrivate ? [CREATED_BY_ATTRIBUTE, UPDATED_BY_ATTRIBUTE] : []
+    _.keys(_.pickBy(model.attributes, attr => !!attr.private))
   );
 };
 
@@ -156,7 +152,11 @@ const createContentType = (
     modelType: 'contentType',
     modelName,
     connection: model.connection || defaultConnection,
-    privateAttributes: getPrivateAttributes(model),
+  });
+  Object.defineProperty(model, 'privateAttributes', {
+    get: function() {
+      return strapi.getModel(model.uid).privateAttributes;
+    },
   });
 };
 
