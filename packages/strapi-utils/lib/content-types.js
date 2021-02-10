@@ -112,7 +112,14 @@ const getKind = obj => obj.kind || 'collectionType';
 
 const pickSchema = model => {
   const schema = _.cloneDeep(
-    _.pick(model, ['connection', 'collectionName', 'info', 'options', 'attributes'])
+    _.pick(model, [
+      'connection',
+      'collectionName',
+      'info',
+      'options',
+      'pluginOptions',
+      'attributes',
+    ])
   );
 
   schema.kind = getKind(model);
